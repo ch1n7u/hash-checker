@@ -6,12 +6,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const fileBuffer = await new Promise((resolve, reject) => {
-      const chunks = [];
-      req.on('data', (chunk) => chunks.push(chunk));
-      req.on('end', () => resolve(Buffer.concat(chunks)));
-      req.on('error', reject);
-    });
+    // Get file buffer from request
+    const buffers = [];
+    for await (const chunk of req) {
+      buffers.push(chunk);
+    }
+    const fileBuffer = Buffer.concat(buffers);
+
+    // Validate file size (adjust as needed)
+    if (fileBuffer.length > 4 * 1024 * 1024) {
+      return res.status(413).json({ error: 'File too large (max 4MB)' });
+    }
 
     // Calculate hashes
     const md5 = createHash('md5').update(fileBuffer).digest('hex');
@@ -20,13 +25,14 @@ export default async function handler(req, res) {
 
     res.status(200).json({ md5, sha1, sha256 });
   } catch (error) {
-    console.error('Hash calculation error:', error);
-    res.status(500).json({ error: 'Failed to calculate hashes' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to process file' });
   }
 }
 
 export const config = {
   api: {
-    bodyParser: false, // Disable default bodyParser to handle file upload
-  },
+    bodyParser: false, // Required for file uploads
+    sizeLimit: '4mb'  // Adjust based on your needs
+  }
 };
