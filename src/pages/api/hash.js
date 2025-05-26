@@ -14,8 +14,8 @@ export default async function handler(req, res) {
     const fileBuffer = Buffer.concat(buffers);
 
     // Validate file size (adjust as needed)
-    if (fileBuffer.length > 4 * 1024 * 1024) {
-      return res.status(413).json({ error: 'File too large (max 4MB)' });
+    if (fileBuffer.length > 500 * 1024 * 1024) {
+      return res.status(413).json({ error: 'File too large (max 500MB)' });
     }
 
     // Calculate hashes
@@ -33,6 +33,6 @@ export default async function handler(req, res) {
 export const config = {
   api: {
     bodyParser: false, // Required for file uploads
-    sizeLimit: '4mb'  // Adjust based on your needs
+    sizeLimit: '500mb'  // Adjust based on your needs
   }
 };
