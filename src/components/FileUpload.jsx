@@ -7,7 +7,7 @@ export default function FileUpload({ setHashResults, setIsLoading }) {
     if (!file) return;
 
     if (file.size > 100 * 1024 * 1024) { // 100MB
-        setHashResults({ error: 'File too large (max 500MB)' });
+        setHashResults({ error: 'File too large (max 100MB)' });
     return;
   }
 
