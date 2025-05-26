@@ -17,11 +17,11 @@ export default function FileUpload({ setHashResults, setIsLoading }) {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/hash', {
-        method: 'POST',
-        body: formData
-      });
-
+      const response = await fetch('https://hash-api-djj2.onrender.com/hash', {
+      method: 'POST',
+      body: formData
+    });
+    
       const results = await response.json();
       setHashResults({ ...results, fileName: file.name, fileSize: file.size });
     } catch (error) {
