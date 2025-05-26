@@ -3,15 +3,31 @@ import styles from '../styles/Home.module.css';
 
 const HashResult = ({ results }) => {
   const [toast, setToast] = useState(null);
+  const [inputHash, setInputHash] = useState('');
+  const [selectedType, setSelectedType] = useState('md5');
+  const [comparisonResult, setComparisonResult] = useState(null);
 
   const showToast = (message) => {
     setToast(message);
-    setTimeout(() => setToast(null), 2000); // hides after 2s
+    setTimeout(() => setToast(null), 2000);
   };
 
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
     showToast(`${label} hash copied!`);
+  };
+
+  const handleCompare = () => {
+    const actualHash = results[selectedType];
+    if (!inputHash.trim()) {
+      setComparisonResult(null);
+      return;
+    }
+    if (inputHash.trim().toLowerCase() === actualHash.toLowerCase()) {
+      setComparisonResult('match');
+    } else {
+      setComparisonResult('mismatch');
+    }
   };
 
   if (results.error) {
@@ -28,38 +44,53 @@ const HashResult = ({ results }) => {
       </div>
 
       <div className={styles.hashResults}>
-        <div className={styles.hashItem}>
-          <span className={styles.hashType}>MD5</span>
-          <code className={styles.hashValue}>{results.md5}</code>
-          <button
-            className={styles.copyButton}
-            onClick={() => copyToClipboard(results.md5, 'MD5')}
-          >
-            Copy
-          </button>
-        </div>
+        {['md5', 'sha1', 'sha256'].map((type) => (
+          <div key={type} className={styles.hashItem}>
+            <span className={styles.hashType}>{type.toUpperCase()}</span>
+            <code className={styles.hashValue}>{results[type]}</code>
+            <button
+              className={styles.copyButton}
+              onClick={() => copyToClipboard(results[type], type.toUpperCase())}
+            >
+              Copy
+            </button>
+          </div>
+        ))}
+      </div>
 
-        <div className={styles.hashItem}>
-          <span className={styles.hashType}>SHA-1</span>
-          <code className={styles.hashValue}>{results.sha1}</code>
-          <button
-            className={styles.copyButton}
-            onClick={() => copyToClipboard(results.sha1, 'SHA-1')}
-          >
-            Copy
-          </button>
-        </div>
+      <div className={styles.compareSection}>
+        <label className={styles.compareLabel}>Compare with original hash:</label>
+        <select
+          className={styles.hashSelect}
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+        >
+          <option value="md5">MD5</option>
+          <option value="sha1">SHA-1</option>
+          <option value="sha256">SHA-256</option>
+        </select>
+        <input
+          className={styles.compareInput}
+          type="text"
+          placeholder="Paste original hash here"
+          value={inputHash}
+          onChange={(e) => setInputHash(e.target.value)}
+        />
+        <button className={styles.compareButton} onClick={handleCompare}>
+          Compare
+        </button>
 
-        <div className={styles.hashItem}>
-          <span className={styles.hashType}>SHA-256</span>
-          <code className={styles.hashValue}>{results.sha256}</code>
-          <button
-            className={styles.copyButton}
-            onClick={() => copyToClipboard(results.sha256, 'SHA-256')}
+        {comparisonResult && (
+          <p
+            className={
+              comparisonResult === 'match'
+                ? styles.compareMatch
+                : styles.compareMismatch
+            }
           >
-            Copy
-          </button>
-        </div>
+            {comparisonResult === 'match' ? '✅ Hash matches!' : '❌ Hash does not match.'}
+          </p>
+        )}
       </div>
     </div>
   );
