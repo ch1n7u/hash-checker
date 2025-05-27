@@ -6,14 +6,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get file buffer from request
+    
     const buffers = [];
     for await (const chunk of req) {
       buffers.push(chunk);
     }
     const fileBuffer = Buffer.concat(buffers);
 
-    // Validate file size (adjust as needed)
+    // Validate file size
     if (fileBuffer.length > 100 * 1024 * 1024) {
       return res.status(413).json({ error: 'File too large (max 100MB)' });
     }
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false, // Required for file uploads
-    sizeLimit: '100mb'  // Adjust based on your needs
+    bodyParser: false, 
+    sizeLimit: '100mb'
   }
 };
